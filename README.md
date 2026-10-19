@@ -363,6 +363,17 @@ tests/
 docs/
 week13-dr/
 
+frontend/
+├── public/
+├── src/
+│   ├── components/
+│   ├── context/
+│   ├── pages/
+│   └── services/
+├── package.json
+├── package-lock.json
+└── vite.config.js
+
 docker-compose.yml
 docker-compose.week13-dr.yml
 locustfile.py
@@ -623,3 +634,72 @@ The Week 11 high-concurrency latency target remains documented as an open perfor
 This repository was developed as part of the **CyBreach Module 4 — Arena** project and associated technical/internship work.
 
 Any deployment outside the development or assessment environment should use production-grade secret management, key rotation, monitoring, database backup policies, and high-availability infrastructure.
+
+---
+
+## Frontend Development
+
+The repository also includes the CyBreach Arena React/Vite frontend in the `frontend/` directory.
+
+### Install Frontend Dependencies
+
+```bash
+cd frontend
+npm ci
+```
+
+### Run the Frontend
+
+```bash
+npm run dev
+```
+
+Frontend development server:
+
+```text
+http://localhost:5173
+```
+
+### Validate the Frontend
+
+```bash
+npm audit
+npm run build
+```
+
+### Run and Verify the Backend
+
+From the repository root:
+
+```bash
+docker compose up -d
+docker compose ps
+curl -i http://localhost:8000/
+docker exec wallet-postgres pg_isready -U wallet_user -d wallet_db
+```
+
+Backend API:
+
+```text
+http://localhost:8000
+```
+
+Swagger UI:
+
+```text
+http://localhost:8000/docs
+```
+
+### Backend Regression Tests
+
+```bash
+.venv/bin/python -m pytest -q
+```
+
+Current validated backend baseline:
+
+```text
+122 passed
+13 warnings
+0 failures
+```
