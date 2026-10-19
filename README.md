@@ -340,40 +340,36 @@ The Week 11 high-concurrency performance target remains documented separately wh
 ## Project Structure
 
 ```text
-Wallet-Service/
-├── app/                         # FastAPI backend
-│   ├── api/
-│   ├── core/
-│   ├── db/
-│   ├── events/
-│   ├── models/
-│   ├── repositories/
-│   ├── schemas/
-│   ├── services/
-│   └── tasks/
-│
-├── frontend/                    # React/Vite frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── pages/
-│   │   └── services/
-│   ├── package.json
-│   ├── package-lock.json
-│   └── vite.config.js
-│
-├── docs/
-├── migrations/
-├── scripts/
-├── tests/
-├── week13-dr/
-├── Dockerfile
-├── docker-compose.yml
-├── docker-compose.week13-dr.yml
-├── locustfile.py
-├── requirements.txt
-└── README.md
+app/
+├── api/
+│   └── v1/
+├── core/
+├── db/
+├── events/
+├── models/
+├── repositories/
+├── schemas/
+├── services/
+└── tasks/
+
+tests/
+├── contract/
+├── integration/
+├── security/
+├── stress/
+├── tasks/
+└── unit/
+
+docs/
+week13-dr/
+
+docker-compose.yml
+docker-compose.week13-dr.yml
+locustfile.py
+requirements.txt
+README.md
+```
+
 ---
 
 ## Local Development
@@ -627,87 +623,3 @@ The Week 11 high-concurrency latency target remains documented as an open perfor
 This repository was developed as part of the **CyBreach Module 4 — Arena** project and associated technical/internship work.
 
 Any deployment outside the development or assessment environment should use production-grade secret management, key rotation, monitoring, database backup policies, and high-availability infrastructure.
-
----
-
-## Run Backend + Frontend
-
-The repository contains the Pod Alpha FastAPI Wallet Service backend and the CyBreach Arena React/Vite frontend.
-
-### Start the Backend
-
-From the repository root:
-
-```bash
-docker compose up -d
-docker compose ps
-```
-
-Verify the backend and PostgreSQL:
-
-```bash
-curl -i http://localhost:8000/
-docker exec wallet-postgres pg_isready -U wallet_user -d wallet_db
-```
-
-Backend API: `http://localhost:8000`
-
-Swagger UI: `http://localhost:8000/docs`
-
-### Start the Frontend
-
-Open another terminal and run from the repository root:
-
-```bash
-cd frontend
-npm ci
-npm run dev
-```
-
-Frontend: `http://localhost:5173`
-
-### Validate the Frontend
-
-From the repository root:
-
-```bash
-cd frontend
-npm audit
-npm run build
-```
-
-### Validate the Backend
-
-From the repository root:
-
-```bash
-.venv/bin/python -m pytest -q
-```
-
-Current validated backend baseline:
-
-```text
-122 passed
-13 warnings
-0 failures
-```
-
-### Existing Docker Runtime
-
-If `wallet-service`, `wallet-postgres`, or `wallet-redpanda` is already running from another local checkout, do not start another Compose stack using the same container names.
-
-Check the existing runtime first:
-
-```bash
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-docker exec wallet-postgres pg_isready -U wallet_user -d wallet_db
-curl -i http://localhost:8000/
-```
-
-Identify the Compose project that owns the existing PostgreSQL container:
-
-```bash
-docker inspect wallet-postgres --format '{{ index .Config.Labels "com.docker.compose.project" }}'
-```
-
-Do not remove a healthy PostgreSQL or Redpanda container simply to resolve a duplicate-container-name conflict.
