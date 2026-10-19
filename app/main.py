@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from secrets import compare_digest
 
 from fastapi import Depends, FastAPI, Request, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.v1.budget_alert import router as budget_alert_router
@@ -63,6 +64,24 @@ app = FastAPI(
 )
 
 
+# ---------------------------------------------------------------------------
+# Frontend CORS
+# ---------------------------------------------------------------------------
+# Development origins used by the CyBreach React/Vite frontend.
+#
+# Production frontend origins should be configured explicitly when the
+# application is deployed.
+# ---------------------------------------------------------------------------
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"^http[:]//(localhost|127[.]0[.]0[.]1)[:]5173$",
+    allow_credentials=True,
+    allow_methods=[chr(42)],
+    allow_headers=[chr(42)],
+)
+
+
 PUBLIC_PATHS = {
     "/",
     "/docs",
@@ -100,6 +119,11 @@ async def wallet_security_boundary(
 ):
     path = request.url.path
     method = request.method.upper()
+
+    # CORS preflight requests must reach CORSMiddleware without requiring
+    # JWT authentication. The actual API request remains protected.
+    if method == "OPTIONS":
+        return await call_next(request)
 
     if path in PUBLIC_PATHS:
         return await call_next(request)
